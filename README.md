@@ -2,7 +2,7 @@ source from:
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/big-data-europe/Lobby)
 
 
-#Changes:
+# Changes:
 
 if you wanna add more datanode, just follow the steps below:
 
