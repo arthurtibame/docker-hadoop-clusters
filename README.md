@@ -1,15 +1,88 @@
+source from:
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/big-data-europe/Lobby)
 
-# Changes
+
+#Changes:
+
+if you wanna add more datanode, just follow the steps below:
+
+## Step1. 
+- add a new service --> datanode (Tips: service name & container name should be identical)
+***docker-compose.yml***
+```docker
+  datanode1: # here
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode1 # here 
+    restart: always
+    volumes:
+      - hadoop_datanode1:/hadoop/dfs/data # new volume datanode1
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+    env_file:
+      - ./hadoop.env
+```
+## Step2.
+- add a nodemanager managed the datanode above
+```docker
+  nodemanager2:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager2
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode1:9864 resourcemanager:8088"
+    env_file:
+      - ./hadoop.env
+```
+- you may figure out that same namenode but different datanode1
+
+## Step3. 
+- add the new datanode1 in the environment(SERVICE_PRECONDITION)
+```docker
+  historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    container_name: historyserver
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 datanode1:9864 resourcemanager:8088" #namenode:9000 namenode:9870
+    volumes:
+      - hadoop_historyserver:/hadoop/yarn/timeline
+    env_file:
+      - ./hadoop.env
+```
+## Step4.
+- **DONOT**forget to add new volumes here!
+```docker
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
+  hadoop_namenode1:
+  hadoop_datanode1:
+  hadoop_historyserver:
+```
+## Step5.
+- docker compose up !
+```cmd
+docker-compose up -d
+```
+## DONE!
+![done1img](./img/1.jpg)
+![done1img](./img/2.jpg)
+
+
+
+
+# Reference: 
+--
+## History:
 
 Version 2.0.0 introduces uses wait_for_it script for the cluster startup
 
-# Hadoop Docker
+## Hadoop Docker
 
-## Supported Hadoop Versions
+### Supported Hadoop Versions
 See repository branches for supported hadoop versions
 
-## Quick Start
+### Quick Start
 
 To deploy an example HDFS cluster, run:
 ```
